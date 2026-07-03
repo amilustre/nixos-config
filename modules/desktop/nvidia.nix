@@ -6,7 +6,7 @@
     powerManagement.enable = false;
     open = false;
     nvidiaSettings = true;
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.beta;
   };
 
   # ===== NUEVO NOMBRE PARA 26.05 =====
@@ -30,6 +30,5 @@
 
   environment.systemPackages = with pkgs; [
     nvidia-vaapi-driver
-    nvidia-settings
   ];
 }
