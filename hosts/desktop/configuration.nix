@@ -4,11 +4,17 @@
   imports = [
     ../../modules/common/core.nix
     ../../modules/common/users.nix
-    ../../modules/desktop/nvidia.nix
+    #../../modules/desktop/nvidia.nix
     ../../modules/desktop/kde-temporary.nix
     ../../modules/desktop/hyprland.nix
   ];
-
+  
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.open = false;
+  hardware.graphics.enable = true;
+  boot.kernelParams = [ "nvidia-drm.modeset=1" ];
+  
   # ===== SISTEMA DE ARCHIVOS (CORREGIDO) =====
   fileSystems = {
     "/" = {
@@ -31,7 +37,9 @@
     efi.canTouchEfiVariables = true;
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_7_1;
+  
+  nixpkgs.config.allowUnfree = true;
 
   # ===== HARDWARE =====
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
@@ -53,5 +61,5 @@
     shell = pkgs.zsh;
   };
 
-  system.stateVersion = "24.11";
+  system.stateVersion = "26.05";
 }
