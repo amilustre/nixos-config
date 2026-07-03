@@ -10,6 +10,7 @@
   home.homeDirectory = "/home/alexis";
 
   home.packages = with pkgs; [
+    alacritty
     firefox
     obsidian
   ];

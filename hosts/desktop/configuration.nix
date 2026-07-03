@@ -9,8 +9,16 @@
   ];
   
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia.modesetting.enable = true;
-  hardware.nvidia.open = false;
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    open = false;
+    prime = {
+      sync.enable = true;
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+  };
   hardware.graphics.enable = true;
   boot.kernelParams = [ "nvidia-drm.modeset=1" ];
   
@@ -76,11 +84,6 @@
 
   # ===== USUARIO =====
   programs.zsh.enable = true;
-  users.users.alexis = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" ];
-    shell = pkgs.zsh;
-  };
 
   system.stateVersion = "26.05";
 }

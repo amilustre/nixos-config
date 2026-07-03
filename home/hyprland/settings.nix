@@ -53,6 +53,13 @@
       ];
 
       bind = [
+        "$mainMod, Return, exec, alacritty"
+        "$mainMod, Q, killactive,"
+        "$mainMod, F, fullscreen,"
+        "$mainMod, V, togglefloating,"
+        "$mainMod, L, exec, loginctl lock-session"
+        ", Print, exec, grim -g \"$(slurp)\" ~/Pictures/screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
+        "$mainMod, Print, exec, grim ~/Pictures/screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
         "$mainMod, 1, workspace, 1"
         "$mainMod, 2, workspace, 2"
         "$mainMod, 3, workspace, 3"
