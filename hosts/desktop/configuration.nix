@@ -5,7 +5,6 @@
     ../../modules/common/core.nix
     ../../modules/common/users.nix
     #../../modules/desktop/nvidia.nix
-    ../../modules/desktop/kde-temporary.nix
     ../../modules/desktop/hyprland.nix
   ];
   
@@ -15,18 +14,40 @@
   hardware.graphics.enable = true;
   boot.kernelParams = [ "nvidia-drm.modeset=1" ];
   
-  # ===== SISTEMA DE ARCHIVOS (CORREGIDO) =====
+  # ===== SISTEMA DE ARCHIVOS (CORREGIDO - BTRFS) =====
   fileSystems = {
     "/" = {
       device = "/dev/nvme0n1p2";
-      fsType = "ext4";
-      options = [ "defaults" ];
+      fsType = "btrfs";
+      options = [ "subvol=@" ];
+    };
+    "/home" = {
+      device = "/dev/nvme0n1p2";
+      fsType = "btrfs";
+      options = [ "subvol=@home" ];
+    };
+    "/nix" = {
+      device = "/dev/nvme0n1p2";
+      fsType = "btrfs";
+      options = [ "subvol=@nix" ];
+    };
+    "/var/log" = {
+      device = "/dev/nvme0n1p2";
+      fsType = "btrfs";
+      options = [ "subvol=@log" ];
+    };
+    "/.snapshots" = {
+      device = "/dev/nvme0n1p2";
+      fsType = "btrfs";
+      options = [ "subvol=@.snapshots" ];
     };
     "/boot" = {
       device = "/dev/nvme0n1p1";
       fsType = "vfat";
     };
   };
+
+  boot.initrd.supportedFilesystems = [ "btrfs" ];
 
   # ===== SWAP (CORREGIDO) =====
   swapDevices = [ { device = "/dev/nvme0n1p3"; } ];

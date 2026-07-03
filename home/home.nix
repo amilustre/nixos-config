@@ -10,7 +10,8 @@
   home.homeDirectory = "/home/alexis";
 
   home.packages = with pkgs; [
-    firefox 
+    firefox
+    obsidian
   ];
 
   programs.home-manager.enable = true;
