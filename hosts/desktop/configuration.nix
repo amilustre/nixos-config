@@ -21,6 +21,10 @@
   };
   hardware.graphics.enable = true;
   boot.kernelParams = [ "nvidia-drm.modeset=1" ];
+
+  # ===== KEYBOARD LAYOUT (SPANISH) =====
+  services.xserver.layout = "es";
+  console.keyMap = "es";
   
   # ===== SISTEMA DE ARCHIVOS (CORREGIDO - BTRFS) =====
   fileSystems = {
