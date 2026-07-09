@@ -8,7 +8,7 @@
     settings = {
       # ⚠️ CAMBIA DP-1 y DP-2 por los nombres reales de tus monitores
       monitor = [
-        "DP-1, 3440x1440@144, 0x0, 1"
+        "DP-1, 3440x1440@144, 0x0, 1, primary"
         "DP-2, 3440x1440@144, 3440x0, 1"
       ];
 
