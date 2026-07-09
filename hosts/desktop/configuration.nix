@@ -22,6 +22,8 @@
   hardware.graphics.enable = true;
   boot.kernelParams = [ "nvidia-drm.modeset=1" ];
 
+  hardware.enableRedistributableFirmware = true;
+
   # ===== KEYBOARD LAYOUT (SPANISH) =====
   services.xserver.layout = "es";
   console.keyMap = "es";
@@ -77,7 +79,7 @@
   # ===== HARDWARE =====
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
-  boot.kernelModules = [ "kvm-intel" "btusb" "bluetooth" ];
+  boot.kernelModules = [ "kvm-intel" "iwlwifi" "btintel" "bluetooth" ];
   boot.extraModulePackages = [ ];
 
   hardware.cpu.intel.updateMicrocode = true;
