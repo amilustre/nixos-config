@@ -13,6 +13,7 @@
     alacritty
     firefox
     obsidian
+    telegram-desktop
   ];
 
   programs.home-manager.enable = true;

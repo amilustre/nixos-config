@@ -77,13 +77,22 @@
   # ===== HARDWARE =====
   boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelModules = [ "kvm-intel" "btusb" "bluetooth" ];
   boot.extraModulePackages = [ ];
 
   hardware.cpu.intel.updateMicrocode = true;
 
   # ===== BLUETOOTH =====
-  hardware.bluetooth.enable = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        Enable = "Source,Sink,Media,Socket";
+        Experimental = true;
+      };
+    };
+  };
   services.blueman.enable = true;
 
   # ===== RED =====
