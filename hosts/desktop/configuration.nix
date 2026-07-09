@@ -78,6 +78,10 @@
 
   hardware.cpu.intel.updateMicrocode = true;
 
+  # ===== BLUETOOTH =====
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
+
   # ===== RED =====
   networking.hostName = "nixtopus";
   networking.networkmanager.enable = true;
