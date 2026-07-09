@@ -89,6 +89,10 @@
       ];
 
       "$mainMod" = "SUPER";
+
+      input = {
+        kb_layout = "es";
+      };
     };
   };
 }
