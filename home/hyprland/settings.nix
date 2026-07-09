@@ -41,8 +41,10 @@
           size = 3;
           passes = 1;
         };
-        shadow = true;
-        shadow_range = 4;
+        shadow = {
+          enabled = true;
+          range = 4;
+        };
       };
 
       exec-once = [
