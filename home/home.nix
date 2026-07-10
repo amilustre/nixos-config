@@ -13,7 +13,7 @@
     alacritty
     firefox
     obsidian
-    rofi-wayland
+    rofi
     telegram-desktop
     wlogout
     pkgs.hyprlock
