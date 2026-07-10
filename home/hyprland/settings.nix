@@ -7,8 +7,8 @@
     configType = "hyprlang";
     settings = {
       monitor = [
+        "DP-1, 3440x1440@144, -760x-1440, 1"
         "HDMI-A-1, 1920x1080, 0x0, 1, primary"
-        "DP-1, 3440x1440@144, 1920x0, 1"
       ];
 
       workspace = [
@@ -21,7 +21,6 @@
         "7, monitor:DP-1"
         "8, monitor:DP-1"
         "9, monitor:DP-1"
-        "10, monitor:DP-1"
       ];
 
       general = {
