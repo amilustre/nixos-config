@@ -6,22 +6,21 @@
     systemd.enable = true;
     configType = "hyprlang";
     settings = {
-      # ⚠️ CAMBIA DP-1 y DP-2 por los nombres reales de tus monitores
       monitor = [
-        "DP-1, 3440x1440@144, 0x0, 1, primary"
-        "DP-2, 3440x1440@144, 3440x0, 1"
+        "HDMI-A-1, 1920x1080, 0x0, 1, primary"
+        "DP-1, 3440x1440@144, 1920x0, 1"
       ];
 
       workspace = [
-        "1, monitor:DP-1"
-        "2, monitor:DP-1"
-        "3, monitor:DP-1"
-        "4, monitor:DP-1"
-        "5, monitor:DP-1"
-        "6, monitor:DP-2"
-        "7, monitor:DP-2"
-        "8, monitor:DP-2"
-        "9, monitor:DP-2"
+        "1, monitor:HDMI-A-1"
+        "2, monitor:HDMI-A-1"
+        "3, monitor:HDMI-A-1"
+        "4, monitor:HDMI-A-1"
+        "5, monitor:HDMI-A-1"
+        "6, monitor:DP-1"
+        "7, monitor:DP-1"
+        "8, monitor:DP-1"
+        "9, monitor:DP-1"
         "10, monitor:DP-1"
       ];
 
@@ -84,7 +83,7 @@
         "$mainMod SHIFT, 9, movetoworkspace, 9"
         "$mainMod SHIFT, 0, movetoworkspace, 10"
 
-        "$mainMod, H, movewindow, mon:DP-2"
+        "$mainMod, H, movewindow, mon:HDMI-A-1"
         "$mainMod, L, movewindow, mon:DP-1"
         "$mainMod, left, focusmonitor, -1"
         "$mainMod, right, focusmonitor, +1"
