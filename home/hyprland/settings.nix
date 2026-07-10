@@ -8,8 +8,12 @@
     settings = {
       monitor = [
         "DP-1, 2560x1080@144, 0x-1080, 1"
-        "HDMI-A-1, 2560x1080@144, 0x0, 1, primary"
+        "HDMI-A-1, 2560x1080@144, 0x0, 1"
       ];
+
+      xwayland = {
+        enabled = true;
+      };
 
       workspace = [
         "1, monitor:HDMI-A-1"
@@ -92,6 +96,11 @@
 
       input = {
         kb_layout = "es";
+      };
+
+      cursor = {
+        no_warps = false;
+        no_hardware_cursors = false;
       };
     };
   };
