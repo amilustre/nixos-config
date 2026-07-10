@@ -14,7 +14,7 @@
     firefox
     obsidian
     telegram-desktop
-    jetbrains-mono-nerdfont
+    pkgs.nerd-fonts.jetbrains-mono
   ];
 
   programs.home-manager.enable = true;
