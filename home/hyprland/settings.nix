@@ -89,7 +89,7 @@
         "$mainMod SHIFT, 0, movetoworkspace, 10"
 
         "$mainMod, H, movewindow, mon:HDMI-A-1"
-        "$mainMod, L, movewindow, mon:DP-1"
+        "$mainMod, period, movewindow, mon:DP-1"
         "$mainMod, left, focusmonitor, -1"
         "$mainMod, right, focusmonitor, +1"
       ];
