@@ -61,7 +61,9 @@
         "$mainMod, Q, killactive,"
         "$mainMod, F, fullscreen,"
         "$mainMod, V, togglefloating,"
-        "$mainMod, L, exec, loginctl lock-session"
+        "$mainMod, D, exec, rofi -show drun"        # Rofi launcher
+        "$mainMod, Escape, exec, wlogout"            # Wlogout menu
+        "$mainMod, L, exec, hyprlock"                # Hyprlock (was loginctl, changed per task)
         ", Print, exec, grim -g \"$(slurp)\" ~/Pictures/screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
         "$mainMod, Print, exec, grim ~/Pictures/screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
         "$mainMod, 1, workspace, 1"
