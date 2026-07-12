@@ -20,8 +20,6 @@
     pkgs.nerd-fonts.jetbrains-mono
   ];
 
-  programs.home-manager.enable = true;
-
   programs.waybar = {
     enable = true;
     settings = [{
@@ -30,6 +28,8 @@
     }];
     style = ./hyprland/waybar/style.css;
   };
+
+  programs.home-manager.enable = true;
 
   programs.hyprlock = {
     enable = true;
