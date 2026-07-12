@@ -50,7 +50,7 @@
       };
 
       exec-once = [
-        "waybar"
+        "waybar -c /home/alexis/.config/waybar/config.jsonc"
         "dunst"
         "[workspace 2 silent] firefox"
         "[workspace 1 silent] alacritty"
