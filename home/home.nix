@@ -22,10 +22,32 @@
 
   programs.waybar = {
     enable = true;
-    settings = [{
-      jsonc = ./hyprland/waybar/config.jsonc;
-    }];
-    style = ./hyprland/waybar/style.css;
+    settings = {
+      layer = "top";
+      position = "top";
+      height = 30;
+      modules-left = [ "hyprland/workspaces" ];
+      modules-center = [ "hyprland/window" ];
+      modules-right = [ "pulseaudio" "network" "clock" "tray" ];
+      "hyprland/workspaces" = {
+        disable-scroll = true;
+        all-outputs = true;
+        format = "{name}";
+      };
+      clock = {
+        format = "{:%H:%M}";
+      };
+    };
+    style = ''
+      * { border: none; font-family: "JetBrainsMono Nerd Font"; font-size: 14px; }
+      window#waybar { background: rgba(30,30,46,0.85); color: #cdd6f4; border-bottom: 2px solid #cba6f7; }
+      #workspaces button { padding: 0 6px; color: #585b70; }
+      #workspaces button.active { color: #cba6f7; }
+      #workspaces button.focused { color: #cba6f7; }
+      #workspaces button.urgent { color: #f38ba8; }
+      #clock, #pulseaudio, #network, #tray { padding: 0 10px; }
+      #tray { padding-right: 6px; }
+    '';
   };
 
   programs.home-manager.enable = true;
