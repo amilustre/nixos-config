@@ -11,7 +11,9 @@
 
   home.packages = with pkgs; [
     alacritty
+    discord
     firefox
+    keepassxc
     obsidian
     rofi
     telegram-desktop

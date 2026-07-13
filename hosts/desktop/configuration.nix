@@ -97,6 +97,14 @@
   };
   services.blueman.enable = true;
 
+  # ===== SYNCTHING =====
+  services.syncthing = {
+    enable = true;
+    user = "alexis";
+    dataDir = "/home/alexis/.local/share/syncthing";
+    configDir = "/home/alexis/.config/syncthing";
+  };
+
   # ===== RED =====
   networking.hostName = "nixtopus";
   networking.networkmanager.enable = true;
