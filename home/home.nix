@@ -22,22 +22,8 @@
 
   programs.waybar = {
     enable = true;
-    settings = {
-      layer = "top";
-      position = "top";
-      height = 30;
-      modules-left = [ "hyprland/workspaces" ];
-      modules-center = [ "hyprland/window" ];
-      modules-right = [ "pulseaudio" "network" "clock" "tray" ];
-      "hyprland/workspaces" = {
-        disable-scroll = true;
-        all-outputs = true;
-        format = "{name}";
-      };
-      clock = {
-        format = "{:%H:%M}";
-      };
-    };
+    # Write JSON config manually to avoid type issues
+    settings = {};
     style = ''
       * { border: none; font-family: "JetBrainsMono Nerd Font"; font-size: 14px; }
       window#waybar { background: rgba(30,30,46,0.85); color: #cdd6f4; border-bottom: 2px solid #cba6f7; }
@@ -48,6 +34,23 @@
       #clock, #pulseaudio, #network, #tray { padding: 0 10px; }
       #tray { padding-right: 6px; }
     '';
+  };
+
+  home.file.".config/waybar/config.jsonc".text = builtins.toJSON {
+    layer = "top";
+    position = "top";
+    height = 30;
+    modules-left = [ "hyprland/workspaces" ];
+    modules-center = [ "hyprland/window" ];
+    modules-right = [ "pulseaudio" "network" "clock" "tray" ];
+    "hyprland/workspaces" = {
+      disable-scroll = true;
+      all-outputs = true;
+      format = "{name}";
+    };
+    clock = {
+      format = "{:%H:%M}";
+    };
   };
 
   programs.home-manager.enable = true;
