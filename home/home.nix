@@ -22,10 +22,7 @@
 
   programs.waybar = {
     enable = true;
-    settings = [{
-      name = "main";
-      jsonc = ./hyprland/waybar/config.jsonc;
-    }];
+    settings = [./hyprland/waybar/config.jsonc];
     style = ./hyprland/waybar/style.css;
   };
 
