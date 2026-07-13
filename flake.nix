@@ -24,7 +24,12 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.alexis = import ./home/home.nix;
+            home-manager.users.alexis = { pkgs, ... }: {
+              imports = [
+                ./home/home.nix
+                ./home/apps-desktop.nix
+              ];
+            };
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
         ];
@@ -39,7 +44,12 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.alexis = import ./home/home.nix;
+            home-manager.users.alexis = { pkgs, ... }: {
+              imports = [
+                ./home/home.nix
+                ./home/apps-desktop.nix
+              ];
+            };
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
         ];

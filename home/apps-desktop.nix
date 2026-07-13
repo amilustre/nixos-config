@@ -9,6 +9,7 @@
     telegram-desktop
     wlogout
     pkgs.hyprlock
+    unzip
   ];
 
   programs.hyprlock = {
