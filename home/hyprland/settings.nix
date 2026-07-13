@@ -50,7 +50,7 @@
       };
 
       exec-once = [
-        "waybar -c /home/alexis/.config/waybar/config.jsonc"
+        "waybar"  # home-manager deploys config to ~/.config/waybar/main.jsonc (auto-discovered)
         "dunst"
         "[workspace 2 silent] firefox"
         "[workspace 1 silent] alacritty"
