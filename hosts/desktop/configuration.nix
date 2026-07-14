@@ -22,7 +22,7 @@
     };
   };
   hardware.graphics.enable = true;
-  boot.kernelParams = [ "nvidia-drm.modeset=1" ];
+  boot.kernelParams = [ "nvidia-drm.modeset=1" "root=/dev/nvme0n1p2" ];
 
   hardware.enableRedistributableFirmware = true;
 
@@ -79,8 +79,8 @@
   nixpkgs.config.allowUnfree = true;
 
   # ===== HARDWARE =====
-  boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ "nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
+  boot.initrd.availableKernelModules = [ "nvme" "btrfs" "xhci_pci" "ahci" "usbhid" "sr_mod" ];
+  boot.initrd.kernelModules = [ "nvme" "btrfs" ];
   boot.kernelModules = [ "kvm-intel" "iwlwifi" "btintel" "bluetooth" ];
   boot.extraModulePackages = [ ];
 
