@@ -12,7 +12,7 @@ let
     echo "1. Put keyboard in bootloader mode (double-tap reset)"
     echo ""
     for i in 10 9 8 7 6 5 4 3 2 1; do
-      printf "\rStarting in %2ds... (double-tap reset now) " "$i"
+      printf "\rStarting in %2ds... (double-tap reset now)      " "$i"
       sleep 1
     done
     echo ""
@@ -84,9 +84,7 @@ let
 in {
   environment.systemPackages = [ sofleFlash ];
 
-  # gvfs + udisks2 handle automounting removable media on desktop environments.
-  # Enable this if you're on NixOS and NICENANO does not automount:
-  # services.gvfs.enable = true;
+  services.gvfs.enable = true;
 
   services.udev.packages = [ (pkgs.writeTextDir "etc/udev/rules.d/99-nicenano.rules" ''
     # Nice!Nano in bootloader mode (Adafruit UF2)
