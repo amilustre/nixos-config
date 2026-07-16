@@ -11,8 +11,11 @@ let
     echo "=== Sofle Flasher ==="
     echo "1. Put keyboard in bootloader mode (double-tap reset)"
     echo ""
-    echo "Press ENTER when ready..."
-    read -r
+    for i in 10 9 8 7 6 5 4 3 2 1; do
+      printf "\rStarting in %2ds... (or press ENTER now if ready) " "$i"
+      read -t 1 && break 2>/dev/null
+    done
+    echo ""
     echo "Looking for NICENANO drive..."
     while [ -z "$NICENANO" ] && [ "$ELAPSED" -lt "$TIMEOUT" ]; do
       printf "\rWaiting for NICENANO drive... (double-tap reset) [%2ds/%ds]" "$ELAPSED" "$TIMEOUT"
