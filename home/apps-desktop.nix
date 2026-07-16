@@ -10,6 +10,7 @@
     wlogout
     pkgs.hyprlock
     unzip
+    wget
   ];
 
   programs.hyprlock = {

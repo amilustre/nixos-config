@@ -6,6 +6,7 @@
     ../../modules/common/users.nix
     #../../modules/desktop/nvidia.nix
     ../../modules/desktop/hyprland.nix
+    ../../modules/keyboard/sofle.nix
   ];
 
   time.timeZone = "Europe/Madrid";
