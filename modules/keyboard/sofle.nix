@@ -56,7 +56,7 @@ let
     echo ""
 
     if [ -z "$NICENANO" ]; then
-      echo "❌ Timed out after ${TIMEOUT}s — NICENANO drive not found."
+      echo "❌ Timed out after 30s — NICENANO drive not found."
       echo "   Available disks:"
       lsblk -o NAME,LABEL,SIZE,TYPE,MOUNTPOINT
       echo ""
