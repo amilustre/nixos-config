@@ -7,8 +7,8 @@
     configType = "hyprlang";
     settings = {
       monitor = [
-        "DP-1, 2560x1080@144, 0x-1080, 1"
-        "HDMI-A-1, 2560x1080@144, 0x0, 1"
+        "DP-3, 2560x1080@144, 0x-1080, 1"
+        "HDMI-A-5, 2560x1080@144, 0x0, 1"
       ];
 
       xwayland = {
@@ -16,15 +16,15 @@
       };
 
       workspace = [
-        "1, monitor:HDMI-A-1"
-        "2, monitor:HDMI-A-1"
-        "3, monitor:HDMI-A-1"
-        "4, monitor:HDMI-A-1"
-        "5, monitor:HDMI-A-1"
-        "6, monitor:DP-1"
-        "7, monitor:DP-1"
-        "8, monitor:DP-1"
-        "9, monitor:DP-1"
+        "1, monitor:HDMI-A-5"
+        "2, monitor:HDMI-A-5"
+        "3, monitor:HDMI-A-5"
+        "4, monitor:HDMI-A-5"
+        "5, monitor:HDMI-A-5"
+        "6, monitor:DP-3"
+        "7, monitor:DP-3"
+        "8, monitor:DP-3"
+        "9, monitor:DP-3"
       ];
 
       general = {
@@ -88,8 +88,8 @@
         "$mainMod SHIFT, 9, movetoworkspace, 9"
         "$mainMod SHIFT, 0, movetoworkspace, 10"
 
-        "$mainMod, H, movewindow, mon:HDMI-A-1"
-        "$mainMod, period, movewindow, mon:DP-1"
+        "$mainMod, H, movewindow, mon:HDMI-A-5"
+        "$mainMod, period, movewindow, mon:DP-3"
         "$mainMod, left, focusmonitor, -1"
         "$mainMod, right, focusmonitor, +1"
       ];
