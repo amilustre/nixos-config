@@ -12,8 +12,8 @@ let
     echo "1. Put keyboard in bootloader mode (double-tap reset)"
     echo ""
     for i in 10 9 8 7 6 5 4 3 2 1; do
-      printf "\rStarting in %2ds... (or press ENTER now if ready) " "$i"
-      read -t 1 && break 2>/dev/null
+      printf "\rStarting in %2ds... (double-tap reset now) " "$i"
+      sleep 1
     done
     echo ""
     echo "Looking for NICENANO drive..."
