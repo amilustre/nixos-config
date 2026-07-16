@@ -11,7 +11,7 @@ let
     echo "=== Sofle Flasher ==="
     echo "1. Put keyboard in bootloader mode (double-tap reset)"
     echo ""
-    sleep 3  # Give user time to reach the keyboard
+    sleep 5  # Give user time to reach the keyboard
     echo "Looking for NICENANO drive..."
     while [ -z "$NICENANO" ] && [ "$ELAPSED" -lt "$TIMEOUT" ]; do
       printf "\rWaiting for NICENANO drive... (double-tap reset) [%2ds/%ds]" "$ELAPSED" "$TIMEOUT"
