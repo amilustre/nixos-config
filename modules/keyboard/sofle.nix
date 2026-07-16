@@ -5,12 +5,16 @@ let
     set -euo pipefail
 
     NICENANO=""
+    TIMEOUT=30
+    ELAPSED=0
 
     echo "=== Sofle Flasher ==="
     echo "1. Put keyboard in bootloader mode (double-tap reset)"
-    echo "2. Waiting for NICENANO drive..."
+    echo ""
 
-    while [ -z "$NICENANO" ]; do
+    while [ -z "$NICENANO" ] && [ "$ELAPSED" -lt "$TIMEOUT" ]; do
+      printf "\rWaiting for NICENANO drive... (double-tap reset) [%2ds/%ds]" "$ELAPSED" "$TIMEOUT"
+
       # Try common automount paths first
       for candidate in /run/media/*/NICENANO /media/*/NICENANO; do
         if [ -d "$candidate" ]; then
@@ -23,7 +27,6 @@ let
       if [ -z "$NICENANO" ] && command -v udisksctl >/dev/null 2>&1; then
         NICENANO_DEV=$(lsblk -o NAME,LABEL -nr 2>/dev/null | awk '/^[a-z]/ && $2 == "NICENANO" {print "/dev/" $1; exit}')
         if [ -n "$NICENANO_DEV" ]; then
-          echo "  Mounting NICENANO via udisksctl..."
           udisksctl mount -b "$NICENANO_DEV" 2>/dev/null || true
         fi
         # Recheck after mount attempt
@@ -44,17 +47,24 @@ let
       fi
 
       if [ -z "$NICENANO" ]; then
-        echo ""
-        echo "⚠️  NICENANO drive not found. Available disks:"
-        lsblk -o NAME,LABEL,SIZE,TYPE,MOUNTPOINT
-        echo ""
-        echo "If NICENANO does not appear above, double-tap the reset button on your keyboard."
-        echo "If it appears but has no mountpoint, mount it manually:"
-        echo "  sudo mount /dev/sdX /mnt    # (replace sdX with the right device)"
-        echo ""
         sleep 2
+        ELAPSED=$((ELAPSED + 2))
       fi
     done
+
+    echo ""
+    echo ""
+
+    if [ -z "$NICENANO" ]; then
+      echo "❌ Timed out after ${TIMEOUT}s — NICENANO drive not found."
+      echo "   Available disks:"
+      lsblk -o NAME,LABEL,SIZE,TYPE,MOUNTPOINT
+      echo ""
+      echo "If NICENANO does not appear above, double-tap the reset button on your keyboard."
+      echo "If it appears but has no mountpoint, mount it manually:"
+      echo "  sudo mount /dev/sdX /mnt    # (replace sdX with the right device)"
+      exit 1
+    fi
 
     echo "3. Found NICENANO at: $NICENANO"
     echo "   Copying firmware..."

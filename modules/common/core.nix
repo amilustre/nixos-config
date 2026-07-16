@@ -13,6 +13,8 @@
 
   environment.systemPackages = with pkgs; [
     neovim git htop wget curl
+    gvfs
+    udisks2
   ];
 
   networking.firewall.enable = true;

@@ -7,6 +7,8 @@
     obsidian
     rofi
     telegram-desktop
+    thunar
+    thunar-volman
     wlogout
     pkgs.hyprlock
     unzip
