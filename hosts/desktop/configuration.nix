@@ -88,6 +88,10 @@
 
   hardware.cpu.intel.updateMicrocode = true;
 
+  # ===== PLATFORMIO / ESP32 =====
+  services.udev.packages = with pkgs; [ platformio-core.udev ];
+  environment.systemPackages = with pkgs; [ platformio ];
+
   # ===== BLUETOOTH =====
   hardware.bluetooth = {
     enable = true;

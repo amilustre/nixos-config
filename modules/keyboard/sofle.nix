@@ -86,6 +86,8 @@ in {
 
   services.gvfs.enable = true;
 
+  # ESP32 via USB serial may appear as /dev/ttyACM0 (not /dev/ttyUSB0).
+  # Check available ports with: ls /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
   services.udev.packages = [ (pkgs.writeTextDir "etc/udev/rules.d/99-nicenano.rules" ''
     # Nice!Nano in bootloader mode (Adafruit UF2)
     SUBSYSTEM=="usb", ATTRS{idVendor}=="239a", ATTRS{idProduct}=="0029", MODE="0666", GROUP="dialout"
