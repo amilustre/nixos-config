@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     alacritty
+    chromium
     discord
     obsidian
     rofi
