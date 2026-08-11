@@ -24,6 +24,10 @@
     };
   };
   hardware.graphics.enable = true;
+  # ===== STEAM (2026-08-10) =====
+  # enable32Bit obligatorio para juegos 32-bit con drivers NVIDIA
+  programs.steam.enable = true;
+  hardware.graphics.enable32Bit = true;
   boot.kernelParams = [ "nvidia-drm.modeset=1" "root=/dev/nvme0n1p2" ];
 
   hardware.enableRedistributableFirmware = true;
