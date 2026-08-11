@@ -14,6 +14,7 @@
     pkgs.hyprlock
     unzip
     wget
+    (pkgs.callPackage ../packages/logitune.nix { })
   ];
 
   programs.hyprlock = {

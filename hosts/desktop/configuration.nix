@@ -92,6 +92,11 @@
   services.udev.packages = with pkgs; [ platformio-core.udev ];
   environment.systemPackages = with pkgs; [ platformio ];
 
+  # ===== LOGITECH HID++ (MX Master 3 por Bluetooth, LogiTune) =====
+  services.udev.extraRules = ''
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="input"
+  '';
+
   # ===== BLUETOOTH =====
   hardware.bluetooth = {
     enable = true;

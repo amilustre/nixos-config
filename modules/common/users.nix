@@ -3,7 +3,7 @@
 {
   users.users.alexis = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "input" ];
     shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHeKkigTlx2X/RVfjkM9y0J13DrVsUCREi6Tm9+b/x94 openclaw@pulpi"
