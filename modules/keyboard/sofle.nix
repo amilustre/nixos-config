@@ -4,11 +4,22 @@ let
   sofleFlash = pkgs.writeShellScriptBin "sofle-flash" ''
     set -euo pipefail
 
+    # Accept firmware path as argument (defaults to ./sofle.uf2)
+    UF2="''${1:-./sofle.uf2}"
+
+    if [ ! -f "$UF2" ]; then
+      echo "❌ Firmware file not found: $UF2"
+      echo "   Usage: sofle-flash [path/to/firmware.uf2]"
+      echo "   (defaults to ./sofle.uf2 in current directory)"
+      exit 1
+    fi
+
     NICENANO=""
     TIMEOUT=30
     ELAPSED=0
 
     echo "=== Sofle Flasher ==="
+    echo "Firmware: $UF2"
     echo "1. Put keyboard in bootloader mode (double-tap reset)"
     echo ""
     for i in 10 9 8 7 6 5 4 3 2 1; do
@@ -72,14 +83,9 @@ let
     fi
 
     echo "3. Found NICENANO at: $NICENANO"
-    echo "   Copying firmware..."
-    if [ -f ./sofle.uf2 ]; then
-      cp ./sofle.uf2 "$NICENANO/"
-      echo "✅ Flashed! Keyboard will restart automatically."
-    else
-      echo "❌ No sofle.uf2 found in current directory"
-      exit 1
-    fi
+    echo "   Copying $UF2 ..."
+    cp "$UF2" "$NICENANO/"
+    echo "✅ Flashed! Keyboard will restart automatically."
   '';
 in {
   environment.systemPackages = [ sofleFlash ];
