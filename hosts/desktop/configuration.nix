@@ -8,7 +8,6 @@
     ../../modules/desktop/hyprland.nix
     ../../modules/display/dashboard.nix
     ../../modules/keyboard/sofle.nix
-    ../../modules/virtualisation/waydroid.nix
   ];
 
   time.timeZone = "Europe/Madrid";
