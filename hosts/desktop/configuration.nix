@@ -129,6 +129,9 @@
   networking.hostName = "nixtopus";
   networking.networkmanager.enable = true;
 
+  # Dashboard trading-crypto (8090) accesible desde la LAN (móvil de Alexis)
+  networking.firewall.allowedTCPPorts = [ 8090 ];
+
   # ===== USUARIO =====
   programs.zsh.enable = true;
 
