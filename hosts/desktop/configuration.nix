@@ -10,6 +10,9 @@
     ../../modules/keyboard/sofle.nix
   ];
 
+  # Docker para el sandbox de trading-crypto (25-08-2026)
+  virtualisation.docker.enable = true;
+
   time.timeZone = "Europe/Madrid";
   
   services.xserver.videoDrivers = [ "nvidia" ];
