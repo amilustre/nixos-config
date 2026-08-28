@@ -102,6 +102,8 @@
   # ===== LOGITECH HID++ (MX Master 3 por Bluetooth, LogiTune) =====
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="input"
+    # OpenRGB: acceso a TODOS los buses i2c (la regla oficial i2c-[0-99]* no cubre i2c-10+)
+    SUBSYSTEM=="i2c-dev", MODE="0660", GROUP="i2c"
   '';
 
   # ===== BLUETOOTH =====
