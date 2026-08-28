@@ -96,8 +96,8 @@
   hardware.cpu.intel.updateMicrocode = true;
 
   # ===== PLATFORMIO / ESP32 =====
-  services.udev.packages = with pkgs; [ platformio-core.udev ];
-  environment.systemPackages = with pkgs; [ platformio ];
+  services.udev.packages = with pkgs; [ platformio-core.udev openrgb ];
+  environment.systemPackages = with pkgs; [ platformio openrgb ];
 
   # ===== LOGITECH HID++ (MX Master 3 por Bluetooth, LogiTune) =====
   services.udev.extraRules = ''
