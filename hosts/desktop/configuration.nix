@@ -90,7 +90,7 @@
   # ===== HARDWARE =====
   boot.initrd.availableKernelModules = [ "nvme" "btrfs" "xhci_pci" "ahci" "usbhid" "sr_mod" ];
   boot.initrd.kernelModules = [ "nvme" "btrfs" ];
-  boot.kernelModules = [ "kvm-intel" "iwlwifi" "btintel" "bluetooth" ];
+  boot.kernelModules = [ "kvm-intel" "iwlwifi" "btintel" "bluetooth" "i2c-dev" "i2c-i801" ];
   boot.extraModulePackages = [ ];
 
   hardware.cpu.intel.updateMicrocode = true;
