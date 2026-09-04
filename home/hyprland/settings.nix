@@ -64,8 +64,8 @@
         "$mainMod, D, exec, rofi -show drun"        # Rofi launcher
         "$mainMod, Escape, exec, wlogout"            # Wlogout menu
         "$mainMod, L, exec, hyprlock"                # Hyprlock (was loginctl, changed per task)
-        ", Print, exec, grim -g \"$(slurp)\" ~/Pictures/screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
-        "$mainMod, Print, exec, grim ~/Pictures/screenshots/$(date +%Y-%m-%d_%H-%M-%S).png"
+        ", Print, exec, flameshot gui"
+        "$mainMod, Print, exec, flameshot full"
         "$mainMod, 1, workspace, 1"
         "$mainMod, 2, workspace, 2"
         "$mainMod, 3, workspace, 3"

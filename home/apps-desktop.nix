@@ -14,6 +14,7 @@
     pkgs.hyprlock
     unzip
     wget
+    grim
     (pkgs.callPackage ../packages/logitune.nix { })
   ];
 
@@ -120,5 +121,21 @@
         border-color: #89b4fa;
       }
     '';
+  };
+
+  # Flameshot (Wayland): usa grim como adaptador de captura (wiki NixOS).
+  # `enable` instala flameshot + configura ~/.config/flameshot/flameshot.ini.
+  services.flameshot = {
+    enable = true;
+    settings = {
+      General = {
+        useGrimAdapter = true;       # Wayland: captura vía grim
+        disabledGrimWarning = true;
+        disabledTrayIcon = true;
+        showStartupLaunchMessage = false;
+        saveAsFileExtension = ".png";
+        savePath = "/home/alexis/Pictures/screenshots";
+      };
+    };
   };
 }
