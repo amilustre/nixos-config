@@ -138,4 +138,7 @@
       };
     };
   };
+
+  # Asegura que el directorio de capturas exista (flameshot no lo crea).
+  home.file."Pictures/screenshots/.keep" = { text = ""; };
 }
