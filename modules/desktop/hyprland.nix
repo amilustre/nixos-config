@@ -19,5 +19,6 @@
     brightnessctl
     networkmanagerapplet
     alacritty
+    swww # fondo de escritorio (Nothing dot-matrix)
   ];
 }

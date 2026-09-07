@@ -15,7 +15,6 @@
     unzip
     wget
     grim
-    swww
   ];
 
   programs.hyprlock = {
