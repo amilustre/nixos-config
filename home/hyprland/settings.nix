@@ -29,14 +29,16 @@
 
       # OpenLogi Actions Ring: overlay popup (gpui toplevel) — flotar sin
       # foco/borde/sombra/anim para que se comporte como overlay, no ventana.
+      # ⚠️ Sintaxis v3 (Hyprland ≥0.55): campos separados por coma,
+      # cada campo = "efecto valor" o "match:prop valor" (v1 "float, class:" murió).
       windowrule = [
-        "float, class:^(openlogi-action-ring)$"
-        "noinitialfocus, class:^(openlogi-action-ring)$"
-        "nofocus, class:^(openlogi-action-ring)$"
-        "noborder, class:^(openlogi-action-ring)$"
-        "noshadow, class:^(openlogi-action-ring)$"
-        "noanim, class:^(openlogi-action-ring)$"
-        "nodim, class:^(openlogi-action-ring)$"
+        "float 1, match:class ^(openlogi-action-ring)$"
+        "no_initial_focus 1, match:class ^(openlogi-action-ring)$"
+        "no_focus 1, match:class ^(openlogi-action-ring)$"
+        "decorate false, match:class ^(openlogi-action-ring)$"
+        "no_shadow 1, match:class ^(openlogi-action-ring)$"
+        "no_anim 1, match:class ^(openlogi-action-ring)$"
+        "no_dim 1, match:class ^(openlogi-action-ring)$"
       ];
 
       general = {
