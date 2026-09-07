@@ -45,8 +45,8 @@
         gaps_in = 5;
         gaps_out = 10;
         border_size = 2;
-        "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-        "col.inactive_border" = "rgba(595959aa)";
+        "col.active_border" = "rgba(d71921ee) rgba(ffffff55) 45deg";
+        "col.inactive_border" = "rgba(33333aee)";
         layout = "dwindle";
       };
 
@@ -64,6 +64,9 @@
       };
 
       exec-once = [
+        # Fondo Nothing OS: el daemon debe estar antes que la imagen
+        "swww-daemon"
+        "swww img /home/alexis/Pictures/wallpapers/nothing-dots.png"
         "waybar"  # home-manager deploys config to ~/.config/waybar/main.jsonc (auto-discovered)
         "dunst"
         "[workspace 2 silent] firefox"

@@ -7,9 +7,9 @@
 }
 
 window#waybar {
-  background: rgba(30, 30, 46, 0.85);
-  color: #cdd6f4;
-  border-bottom: 2px solid rgba(69, 71, 90, 0.8);
+  background: rgba(10, 10, 12, 0.85);
+  color: #e4e4e7;
+  border-bottom: 1px solid rgba(51, 51, 58, 0.9);
   transition-property: background-color;
   transition-duration: 0.5s;
 }
@@ -17,29 +17,29 @@ window#waybar {
 #workspaces button {
   padding: 0 6px;
   background: transparent;
-  color: #585b70;
+  color: #58585f;
   border-bottom: 2px solid transparent;
 }
 
 #workspaces button.active {
-  color: #cdd6f4;
-  border-bottom: 2px solid #89b4fa;
+  color: #ffffff;
+  border-bottom: 2px solid #d71921;
 }
 
 #workspaces button.focused {
-  color: #cdd6f4;
-  background: #45475a;
+  color: #ffffff;
+  background: #141417;
 }
 
 #workspaces button.urgent {
-  color: #f38ba8;
-  border-bottom: 2px solid #f38ba8;
+  color: #ff4444;
+  border-bottom: 2px solid #ff4444;
 }
 
 #workspaces button:hover {
-  background: #313244;
-  color: #cdd6f4;
-  border-bottom: 2px solid #89b4fa;
+  background: #1d1d21;
+  color: #e4e4e7;
+  border-bottom: 2px solid #d71921;
 }
 
 #clock,
@@ -48,17 +48,19 @@ window#waybar {
 #tray {
   padding: 0 10px;
   margin: 0 2px;
-  color: #cdd6f4;
+  color: #e4e4e7;
 }
 
 #clock {
   background: transparent;
+  color: #d71921;
+  font-weight: bold;
 }
 
 #pulseaudio {
-  color: #a6e3a1;
+  color: #c8c8cc;
 }
 
 #network {
-  color: #89b4fa;
+  color: #c8c8cc;
 }
