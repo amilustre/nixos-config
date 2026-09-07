@@ -65,8 +65,9 @@
 
       exec-once = [
         # Fondo Nothing OS: el daemon debe estar antes que la imagen
-        "swww-daemon"
-        "swww img /home/alexis/Pictures/wallpapers/nothing-dots.png"
+        # (en nixpkgs 26.05 swww → awww)
+        "awww-daemon"
+        "awww img /home/alexis/Pictures/wallpapers/nothing-dots.png"
         "waybar"  # home-manager deploys config to ~/.config/waybar/main.jsonc (auto-discovered)
         "dunst"
         "[workspace 2 silent] firefox"

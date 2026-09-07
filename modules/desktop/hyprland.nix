@@ -19,6 +19,6 @@
     brightnessctl
     networkmanagerapplet
     alacritty
-    swww # fondo de escritorio (Nothing dot-matrix)
+    awww # fondo de escritorio (Nothing dot-matrix); en 26.05 swww se renombró a awww
   ];
 }
