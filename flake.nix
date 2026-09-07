@@ -20,6 +20,16 @@
     let
       lib = nixpkgs.lib;
       system = "x86_64-linux";
+      # Fix local (upstream package.nix solo parchea openlogi-desktop): el
+      # helper del Actions Ring (openlogi-overlay) necesita el mismo RUNPATH
+      # extra (libGL/wayland/vulkan-loader — dlopen de gpui) o paniquea con
+      # NoWayLandLib. Verificado en nixtopus 07-09.
+      openlogiPkg = let pkgs = nixpkgs.legacyPackages.${system}; in
+        openlogi.packages.${system}.openlogi.overrideAttrs (o: {
+          postFixup = (o.postFixup or "") + ''
+            patchelf --add-rpath "${pkgs.lib.makeLibraryPath [ pkgs.libGL pkgs.wayland pkgs.vulkan-loader ]}" "$out/bin/openlogi-overlay"
+          '';
+        });
     in
     {
       nixosConfigurations.desktop = lib.nixosSystem {
@@ -28,19 +38,11 @@
         modules = [
           ./hosts/desktop/configuration.nix
           openlogi.nixosModules.default
-          # override: el package.nix upstream solo añade RUNPATH extra
-          # (libGL/wayland/vulkan-loader, dlopen de gpui) a openlogi-desktop;
-          # openlogi-overlay (Actions Ring) paniquea con NoWaylandLib sin él.
-          # Mismo postFixup que desktop aplicado al overlay.
-          { pkgs, ... }: {
+          {
             programs.openlogi = {
               enable = true;
               launchAtLogin = true; # agente arranca con la sesión gráfica
-              package = (openlogi.packages.${pkgs.stdenv.hostPlatform.system}.openlogi).overrideAttrs (o: {
-                postFixup = (o.postFixup or "") + ''
-                  patchelf --add-rpath "${pkgs.lib.makeLibraryPath [ pkgs.libGL pkgs.wayland pkgs.vulkan-loader ]}" "$out/bin/openlogi-overlay"
-                '';
-              });
+              package = openlogiPkg;
             };
           }
           home-manager.nixosModules.home-manager
