@@ -27,6 +27,18 @@
         "9, monitor:DP-3"
       ];
 
+      # OpenLogi Actions Ring: overlay popup (gpui toplevel) — flotar sin
+      # foco/borde/sombra/anim para que se comporte como overlay, no ventana.
+      windowrule = [
+        "float, class:^(openlogi-action-ring)$"
+        "noinitialfocus, class:^(openlogi-action-ring)$"
+        "nofocus, class:^(openlogi-action-ring)$"
+        "noborder, class:^(openlogi-action-ring)$"
+        "noshadow, class:^(openlogi-action-ring)$"
+        "noanim, class:^(openlogi-action-ring)$"
+        "nodim, class:^(openlogi-action-ring)$"
+      ];
+
       general = {
         gaps_in = 5;
         gaps_out = 10;
