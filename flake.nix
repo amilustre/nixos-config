@@ -7,9 +7,16 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # OpenLogi — alternativa local-first a Logitech Options+ (HID++/uinput),
+    # sustituye al LogiTune (mmaher88) que nunca llegó a funcionar.
+    # NixOS module oficial: paquete + udev rules + agente (graphical-session).
+    openlogi = {
+      url = "github:AprilNEA/OpenLogi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, openlogi, ... }@inputs:
     let
       lib = nixpkgs.lib;
       system = "x86_64-linux";
@@ -20,6 +27,13 @@
         specialArgs = { inherit inputs; };
         modules = [
           ./hosts/desktop/configuration.nix
+          openlogi.nixosModules.default
+          {
+            programs.openlogi = {
+              enable = true;
+              launchAtLogin = true; # agente arranca con la sesión gráfica
+            };
+          }
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;

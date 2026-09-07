@@ -15,7 +15,6 @@
     unzip
     wget
     grim
-    (pkgs.callPackage ../packages/logitune.nix { })
   ];
 
   programs.hyprlock = {

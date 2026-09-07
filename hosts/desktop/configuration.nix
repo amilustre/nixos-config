@@ -99,7 +99,10 @@
   services.udev.packages = with pkgs; [ platformio-core.udev openrgb ];
   environment.systemPackages = with pkgs; [ platformio openrgb ];
 
-  # ===== LOGITECH HID++ (MX Master 3 por Bluetooth, LogiTune) =====
+  # ===== LOGITECH HID++ (MX Master 3 por Bluetooth — OpenLogi) =====
+  # OpenLogi (en services.udev.packages) trae sus propias reglas uaccess
+  # (hidraw USB+BT, uinput, event nodes del ratón). Esta regla extra de grupo
+  # input cubre casos sin asiento logind (p.ej. sesión SSH).
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="input"
     # OpenRGB: acceso a TODOS los buses i2c (la regla oficial i2c-[0-99]* no cubre i2c-10+)
