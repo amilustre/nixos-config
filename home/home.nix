@@ -8,6 +8,9 @@
 
   home.username = "alexis";
   home.homeDirectory = "/home/alexis";
+  # Claude Code vía npm global (~/.npm-global/bin) — el instalador nativo
+  # de claude no corre en NixOS (binario dinámico genérico → stub-ld).
+  home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
   home.packages = with pkgs; [
     firefox

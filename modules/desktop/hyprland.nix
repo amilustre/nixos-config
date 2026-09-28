@@ -22,5 +22,6 @@
     awww # fondo de escritorio (Nothing dot-matrix); en 26.05 swww se renombró a awww
     godot_4 # editor Godot 4.6.3 — creación de juegos (27-09)
     steam-run # entorno FHS para correr juegos/binarios ajenos (UNCOUNTED, etc.)
+    nodejs # npm global para Claude Code (el instalador nativo es genérico → stub-ld en NixOS)
   ];
 }
