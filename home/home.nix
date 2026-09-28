@@ -8,8 +8,9 @@
 
   home.username = "alexis";
   home.homeDirectory = "/home/alexis";
-  # Claude Code vía npm global (~/.npm-global/bin) — el instalador nativo
-  # de claude no corre en NixOS (binario dinámico genérico → stub-ld).
+  # Claude Code: vía paquete de nixpkgs (claude-code en systemPackages) —
+  # TANTO el instalador nativo (claude.ai/install.sh) COMO el paquete npm
+  # traen binario dinámico genérico → NixOS los rechaza (stub-ld).
   home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
   home.packages = with pkgs; [
