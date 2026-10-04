@@ -60,6 +60,35 @@
         ];
       };
 
+      # nixtopus = desktop
+      nixosConfigurations.nixtopus = lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
+        modules = [
+          ./hosts/desktop/configuration.nix
+          openlogi.nixosModules.default
+          {
+            programs.openlogi = {
+              enable = true;
+              launchAtLogin = true;
+              package = openlogiPkg;
+            };
+          }
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.alexis = { pkgs, ... }: {
+              imports = [
+                ./home/home.nix
+                ./home/apps-desktop.nix
+              ];
+            };
+            home-manager.extraSpecialArgs = { inherit inputs; };
+          }
+        ];
+      };
+
       nixosConfigurations.workstation = lib.nixosSystem {
         inherit system;
         specialArgs = { inherit inputs; };
@@ -79,8 +108,5 @@
           }
         ];
       };
-
-      # alias: nixtopus → desktop (hostname real)
-      nixosConfigurations.nixtopus = self.nixosConfigurations.desktop;
     };
 }
