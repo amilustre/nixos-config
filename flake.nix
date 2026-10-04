@@ -79,5 +79,8 @@
           }
         ];
       };
+
+      # alias: nixtopus → desktop (hostname real)
+      nixosConfigurations.nixtopus = self.nixosConfigurations.desktop;
     };
 }
