@@ -83,7 +83,7 @@
     efi.canTouchEfiVariables = true;
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_7_1;
+  boot.kernelPackages = pkgs.linuxPackages_6_12;  # 7.1 removido, usando LTS estable
   
   nixpkgs.config.allowUnfree = true;
 
