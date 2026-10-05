@@ -2,9 +2,9 @@
   description = "Configuración inmutable de NixOS con Hyprland";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager/release-26.05";
+      url = "github:nix-community/home-manager/release-unstable";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # OpenLogi — alternativa local-first a Logitech Options+ (HID++/uinput),
