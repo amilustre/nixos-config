@@ -15,6 +15,7 @@
     unzip
     wget
     grim
+    calibre
   ];
 
   programs.hyprlock = {
