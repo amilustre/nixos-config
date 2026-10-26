@@ -8,6 +8,7 @@
     ../../modules/desktop/hyprland.nix
     ../../modules/display/dashboard.nix
     ../../modules/keyboard/sofle.nix
+    ../../modules/programs/android.nix
   ];
 
   # Docker para el sandbox de trading-crypto (25-08-2026)
