@@ -11,7 +11,7 @@
     # sustituye al LogiTune (mmaher88) que nunca llegó a funcionar.
     # NixOS module oficial: paquete + udev rules + agente (graphical-session).
     openlogi = {
-      url = "github:AprilNEA/OpenLogi";
+      url = "github:AprilNEA/OpenLogi?dir=packaging";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

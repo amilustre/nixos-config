@@ -36,7 +36,7 @@
   hardware.enableRedistributableFirmware = true;
 
   # ===== KEYBOARD LAYOUT (SPANISH) =====
-  services.xserver.layout = "es";
+  services.xserver.xkb.layout = "es";
   console.keyMap = "es";
   
   # ===== SISTEMA DE ARCHIVOS (CORREGIDO - BTRFS) =====
@@ -84,7 +84,11 @@
     efi.canTouchEfiVariables = true;
   };
 
-  boot.kernelPackages = pkgs.linuxPackages_6_12;  # 7.1 removido, usando LTS estable
+  # 6.12.114 rompe Bluetooth: el backport "L2CAP: convert to getsockopt_iter"
+  # deja l2cap_sock_ops sin .getsockopt y el net/socket.c de 6.12 no despacha
+  # getsockopt_iter -> bluetoothd falla con getsockopt(L2CAP_OPTIONS) EOPNOTSUPP
+  # ("Unable to register new adapter"). 6.18 (LTS) no lleva ese backport.
+  boot.kernelPackages = pkgs.linuxPackages_6_18;
   
   nixpkgs.config.allowUnfree = true;
 
@@ -115,10 +119,7 @@
     enable = true;
     powerOnBoot = true;
     settings = {
-      General = {
-        Enable = "Source,Sink,Media,Socket";
-        Experimental = true;
-      };
+      General.Experimental = true;  # nivel de batería de dispositivos BT
     };
   };
   services.blueman.enable = true;
@@ -137,9 +138,6 @@
 
   # Dashboard trading-crypto (8090) accesible desde la LAN (móvil de Alexis)
   networking.firewall.allowedTCPPorts = [ 8090 9090 9091 ];
-
-  # ===== USUARIO =====
-  programs.zsh.enable = true;
 
   system.stateVersion = "26.05";
 }

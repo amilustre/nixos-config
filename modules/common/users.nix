@@ -9,4 +9,5 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHeKkigTlx2X/RVfjkM9y0J13DrVsUCREi6Tm9+b/x94 openclaw@pulpi"
     ];
   };
+  programs.zsh.enable = true;  # requerido por shell = zsh
 }
