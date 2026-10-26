@@ -54,6 +54,18 @@
     };
   };
 
+  # Dunst por defecto: clic izquierdo = cerrar → las peticiones de blueman
+  # ("Pairing request for…", acciones Confirm/Deny) caducaban sin respuesta
+  # y el dispositivo BT quedaba conectado sin cifrar (sin input).
+  # Clic izquierdo abre el menú de acciones (rofi) y luego cierra.
+  home.file.".config/dunst/dunstrc".text = ''
+    [global]
+    mouse_left_click = do_action, close_current
+    mouse_middle_click = close_current
+    mouse_right_click = close_all
+    dmenu = ${pkgs.rofi}/bin/rofi -dmenu -p dunst
+  '';
+
   programs.home-manager.enable = true;
 
 
