@@ -111,6 +111,11 @@
   # input cubre casos sin asiento logind (p.ej. sesión SSH).
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="input"
+    # ProtoArc EM06: hidraw accesible para WebHID (hub.protoarc.com) en Chromium.
+    # Bluetooth (0005:25A7:FA67) — sin padre USB, se casa por el nombre del dispositivo HID.
+    SUBSYSTEM=="hidraw", KERNELS=="0005:25A7:FA67.*", MODE="0660", GROUP="input"
+    # Receptor USB 2.4G (260d:1254)
+    SUBSYSTEM=="hidraw", ATTRS{idVendor}=="260d", ATTRS{idProduct}=="1254", MODE="0660", GROUP="input"
     # OpenRGB: acceso a TODOS los buses i2c (la regla oficial i2c-[0-99]* no cubre i2c-10+)
     SUBSYSTEM=="i2c-dev", MODE="0660", GROUP="input"
   '';
