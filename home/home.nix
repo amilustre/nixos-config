@@ -3,6 +3,8 @@
 {
   imports = [
     ./hyprland/settings.nix
+    ./updates
+    ./calendar
     ../modules/programs/git.nix
   ];
 
@@ -30,9 +32,12 @@
       #workspaces button.active { color: #ffffff; border-bottom: 2px solid #d71921; }
       #workspaces button.focused { color: #ffffff; }
       #workspaces button.urgent { color: #ff4444; }
-      #clock, #pulseaudio, #network, #tray { padding: 0 10px; }
+      #clock, #pulseaudio, #network, #tray, #custom-updates { padding: 0 10px; }
       #clock { color: #d71921; font-weight: bold; }
       #pulseaudio, #network { color: #c8c8cc; }
+      #custom-updates.updates, #custom-updates.pending { color: #d71921; }
+      #custom-updates.reboot { color: #e3b341; }
+      #custom-updates.error { color: #58585f; }
       #tray { padding-right: 6px; }
     '';
   };
@@ -43,14 +48,26 @@
     height = 30;
     modules-left = [ "hyprland/workspaces" ];
     modules-center = [ "hyprland/window" ];
-    modules-right = [ "pulseaudio" "network" "clock" "tray" ];
+    modules-right = [ "custom/updates" "pulseaudio" "network" "clock" "tray" ];
     "hyprland/workspaces" = {
       disable-scroll = true;
       all-outputs = true;
       format = "{name}";
     };
+    # Clic: pop-up de calendario con Google Calendar (home/calendar).
     clock = {
       format = "{:%H:%M}";
+      tooltip = false;
+      on-click = "gcal-popup";
+    };
+    # Alertas de actualizaciones (home/updates); oculto si todo está al día.
+    "custom/updates" = {
+      exec = "update-check waybar";
+      return-type = "json";
+      interval = 300;
+      signal = 8; # update-check / update-apply envían SIGRTMIN+8 al cambiar
+      on-click = "update-check apply";
+      on-click-right = "systemctl --user start --no-block update-check.service";
     };
   };
 
