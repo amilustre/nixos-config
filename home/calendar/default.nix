@@ -1,13 +1,14 @@
 { pkgs, ... }:
 
 # Pop-up de calendario (clic en el reloj de waybar) con los eventos de Google
-# Calendar vía «dirección secreta en formato iCal» (solo lectura, sin OAuth).
-# Las URLs viven en ~/.config/gcal-popup/calendars (secreto, fuera del repo).
+# Calendar vía API (solo lectura, OAuth): calendarios visibles, nombres y
+# colores salen de Google. Cliente OAuth y token viven en ~/.config/gcal-popup
+# (secretos, fuera del repo); ver la cabecera de gcal-popup.py.
 let
   python = pkgs.python3.withPackages (ps: [
     ps.pygobject3
-    ps.icalendar
-    ps.recurring-ical-events
+    ps.google-auth-oauthlib
+    ps.requests
   ]);
 
   gcalPopup = pkgs.stdenv.mkDerivation {
