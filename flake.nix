@@ -24,6 +24,15 @@
       noDocOverlay = final: prev: {
         python312-doc = null;  # Deshabilita build de docs de Python (bug upstream)
       };
+      # Waybar 0.15.0 manda `dispatch workspace N` en texto plano y Hyprland
+      # 0.57 (config Lua) lo rechaza, así que clicar un workspace no hace nada.
+      # Parche = commit 1 del PR Alexays/Waybar#5013 (en master, sin release),
+      # adaptado a 0.15.0. Quitar cuando nixpkgs traiga un waybar > 0.15.0.
+      waybarLuaDispatchOverlay = final: prev: {
+        waybar = prev.waybar.overrideAttrs (o: {
+          patches = (o.patches or [ ]) ++ [ ./patches/waybar-hyprland-lua-dispatch.patch ];
+        });
+      };
       # Fix local (upstream package.nix solo parchea openlogi-desktop): el
       # helper del Actions Ring (openlogi-overlay) necesita el mismo RUNPATH
       # extra (libGL/wayland/vulkan-loader — dlopen de gpui) o paniquea con
@@ -40,8 +49,8 @@
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
-          # Aplicar overlay para evitar bug de sphinx/docutils
-          ({ config, ... }: { nixpkgs.overlays = [ noDocOverlay ]; })
+          # Overlays: bug de sphinx/docutils y clic en workspaces de waybar
+          ({ config, ... }: { nixpkgs.overlays = [ noDocOverlay waybarLuaDispatchOverlay ]; })
           ./hosts/desktop/configuration.nix
           openlogi.nixosModules.default
           {
@@ -71,8 +80,8 @@
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
-          # Aplicar overlay para evitar bug de sphinx/docutils
-          ({ config, ... }: { nixpkgs.overlays = [ noDocOverlay ]; })
+          # Overlays: bug de sphinx/docutils y clic en workspaces de waybar
+          ({ config, ... }: { nixpkgs.overlays = [ noDocOverlay waybarLuaDispatchOverlay ]; })
           ./hosts/desktop/configuration.nix
           openlogi.nixosModules.default
           {
@@ -101,6 +110,7 @@
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
+          { nixpkgs.overlays = [ waybarLuaDispatchOverlay ]; }
           ./hosts/workstation/configuration.nix
           home-manager.nixosModules.home-manager
           {
