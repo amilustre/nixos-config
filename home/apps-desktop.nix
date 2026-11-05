@@ -123,14 +123,15 @@
     '';
   };
 
-  # Flameshot (Wayland): usa grim como adaptador de captura (wiki NixOS).
+  # Flameshot >= 14 captura vía xdg-desktop-portal (xdph → grim); el adaptador
+  # grim propio desapareció y las claves `useGrimAdapter`/`disabledGrimWarning`
+  # ahora se rechazan como inválidas: el daemon se bloquea con un diálogo modal
+  # y `flameshot gui` nunca llega a abrir.
   # `enable` instala flameshot + configura ~/.config/flameshot/flameshot.ini.
   services.flameshot = {
     enable = true;
     settings = {
       General = {
-        useGrimAdapter = true;       # Wayland: captura vía grim
-        disabledGrimWarning = true;
         disabledTrayIcon = true;
         showStartupLaunchMessage = false;
         saveAsFileExtension = ".png";

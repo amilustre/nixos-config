@@ -118,8 +118,9 @@ hl.bind(mainMod .. " + V",      hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + D",      hl.dsp.exec_cmd("rofi -show drun"))   -- Rofi launcher
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd("wlogout"))           -- Wlogout menu
 hl.bind(mainMod .. " + L",      hl.dsp.exec_cmd("hyprlock"))          -- Hyprlock
-hl.bind("Print",                hl.dsp.exec_cmd("flameshot gui"))
-hl.bind(mainMod .. " + Print",  hl.dsp.exec_cmd("flameshot full"))
+hl.bind("Print",                  hl.dsp.exec_cmd("flameshot gui"))   -- Captura con selección/edición
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("flameshot gui"))   -- Idem (atajo estilo Windows/GNOME)
+hl.bind(mainMod .. " + Print",    hl.dsp.exec_cmd("flameshot full"))  -- Pantalla completa directa a ~/Pictures/screenshots
 
 -- mainMod + [0-9] cambia de workspace; mainMod + SHIFT + [0-9] mueve la ventana
 for i = 1, 10 do
