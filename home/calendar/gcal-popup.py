@@ -2,16 +2,19 @@
 """Pop-up de calendario para waybar con los eventos de Google Calendar.
 
 Se abre/cierra con clic en el reloj (una segunda instancia cierra la primera).
-Usa la API de Google Calendar (solo lectura) para que los calendarios visibles,
-sus nombres y sus colores (y el color propio de cada evento) sean los de Google.
+Los eventos salen de la API de HomeHub (/calendar), que ya tiene la cuenta de
+Google conectada: aquí no hay OAuth ni secretos. Si HomeHub pierde la sesión,
+se reconecta abriendo https://homehub.ilustre.es/calendar/oauth/start.
 
-Configuración, una sola vez:
-  1. ~/.config/gcal-popup/client_secret.json: cliente OAuth «App de escritorio»
-     de un proyecto de Google Cloud con la Google Calendar API habilitada.
-  2. `gcal-popup --login` (o el botón «Conectar con Google»): autoriza en el
-     navegador y guarda ~/.config/gcal-popup/token.json (permisos 600).
-Los eventos se cachean por mes en ~/.cache/gcal-popup/events.json y se
-refrescan si tienen más de 15 min.
+Lo que da HomeHub y cómo se usa:
+  - /calendar/calendars: id, nombre y si es el principal (sin colores: cada
+    calendario toma uno fijo de la paleta de Google, el principal primero).
+  - /calendar/events?calendar_id=…&days=N: eventos desde ahora hasta N días
+    (máximo 365), como mucho 50 por calendario y con el colorId del evento.
+    Si un calendario llega a 50, los días desde su último evento quedan sin
+    datos. El pasado no se muestra.
+Los eventos se cachean en ~/.cache/gcal-popup/events.json y se refrescan si
+tienen más de 15 min.
 """
 
 import datetime as dt
@@ -19,11 +22,13 @@ import html
 import json
 import os
 import signal
-import subprocess
 import sys
 import threading
 import time
+import urllib.error
 import urllib.parse
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -36,23 +41,21 @@ gi.require_version("GtkLayerShell", "0.1")
 gi.require_version("Pango", "1.0")
 from gi.repository import Gdk, Gio, GLib, GLibUnix, Gtk, GtkLayerShell, Pango  # noqa: E402
 
-import requests  # noqa: E402
-from google.auth.exceptions import RefreshError, TransportError  # noqa: E402
-from google.auth.transport.requests import AuthorizedSession, Request  # noqa: E402
-from google.oauth2.credentials import Credentials  # noqa: E402
-from google_auth_oauthlib.flow import InstalledAppFlow  # noqa: E402
-
-CONFIG_DIR = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "gcal-popup"
-CLIENT_SECRET = CONFIG_DIR / "client_secret.json"
-TOKEN = CONFIG_DIR / "token.json"
+API = "https://homehub.ilustre.es/calendar"
+DAYS = 365          # máximo que acepta HomeHub
+EVENT_LIMIT = 50    # maxResults fijo de HomeHub por calendario
 CACHE_FILE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "gcal-popup" / "events.json"
 PIDFILE = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "gcal-popup.pid"
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
-API = "https://www.googleapis.com/calendar/v3"
 MAX_AGE = 15 * 60
-MAX_CACHED_MONTHS = 12
 MAX_DAY_EVENTS = 8
-FALLBACK_COLOR = "#8a8a93"
+
+# Colores de evento de Google Calendar (colorId → color de la web).
+EVENT_COLORS = {"1": "#7986cb", "2": "#33b679", "3": "#8e24aa", "4": "#e67c73",
+                "5": "#f6bf26", "6": "#f4511e", "7": "#039be5", "8": "#616161",
+                "9": "#3f51b5", "10": "#0b8043", "11": "#d50000"}
+# Colores de calendario, en orden (principal primero): pavo real, albahaca,
+# mandarina, uva, plátano, flamenco, grafito.
+CALENDAR_COLORS = ["#039be5", "#0b8043", "#f4511e", "#8e24aa", "#f6bf26", "#e67c73", "#616161"]
 
 MONTHS = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
           "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -78,10 +81,6 @@ button:hover { background: #1c1c21; }
 .muted { color: #8a8a93; font-size: 11px; }
 separator { background: #33333a; min-height: 1px; margin: 8px 0; }
 """
-
-
-class AuthNeeded(Exception):
-    """Falta el cliente OAuth o hay que (re)conectar la cuenta."""
 
 
 @dataclass
@@ -123,8 +122,9 @@ def parse_when(value):
     return dt.date.fromisoformat(value)
 
 
-def tilde(path):
-    return str(path).replace(str(Path.home()), "~", 1)
+def start_day(value):
+    when = parse_when(value)
+    return when.date() if isinstance(when, dt.datetime) else when
 
 
 def write_private(path, text):
@@ -135,98 +135,66 @@ def write_private(path, text):
     tmp.replace(path)
 
 
-# ----- Google -----
-def credentials():
-    if not CLIENT_SECRET.exists():
-        raise AuthNeeded(f"Falta {tilde(CLIENT_SECRET)} (cliente OAuth de Google Cloud)")
-    if not TOKEN.exists():
-        raise AuthNeeded("Cuenta de Google sin conectar")
-    creds = Credentials.from_authorized_user_file(str(TOKEN), SCOPES)
-    if not creds.valid:
-        if not creds.refresh_token:
-            raise AuthNeeded("Sesión de Google caducada")
-        try:
-            creds.refresh(Request())
-        except RefreshError as e:
-            raise AuthNeeded("Sesión de Google caducada o revocada") from e
-        write_private(TOKEN, creds.to_json())
-    return creds
+# ----- HomeHub -----
+def get(path, **params):
+    url = API + path + ("?" + urllib.parse.urlencode(params) if params else "")
+    with urllib.request.urlopen(url, timeout=20) as r:
+        return json.load(r)
 
 
-def login():
-    flow = InstalledAppFlow.from_client_secrets_file(str(CLIENT_SECRET), SCOPES)
-    # prompt=consent: Google solo entrega refresh_token en el primer consentimiento.
-    creds = flow.run_local_server(
-        port=0, prompt="consent",
-        success_message="gcal-popup ya está conectado con Google. Puedes cerrar esta pestaña.")
-    write_private(TOKEN, creds.to_json())
-    print(f"Conectado. Token guardado en {tilde(TOKEN)}")
+def fetch_calendar(cal, color):
+    """Eventos de un calendario y el último día con datos completos."""
+    # HomeHub mete el ID tal cual en la ruta de Google: un «#» (festivos)
+    # cortaría la URL, así que se le pasa ya codificado.
+    events = get("/events", calendar_id=cal["id"].replace("#", "%23"), days=DAYS)
+    until = dt.date.today() + dt.timedelta(days=DAYS - 1)
+    if len(events) >= EVENT_LIMIT:
+        # Recortado por el tope: vienen por orden de inicio, así que solo se
+        # sabe que está todo hasta el día anterior al del último evento.
+        until = min(until, start_day(events[-1]["start"]) - dt.timedelta(days=1))
+    name = cal.get("summary") or cal["id"]
+    return name, [{
+        "summary": ev.get("summary") or "(sin título)",
+        "start": ev["start"],
+        "end": ev["end"],
+        "location": ev.get("location") or "",
+        # Color propio del evento si lo tiene; si no, el del calendario.
+        "color": EVENT_COLORS.get(ev.get("colorId"), color),
+        "calendar": name,
+    } for ev in events], until
 
 
-def declined(event):
-    return any(a.get("self") and a.get("responseStatus") == "declined"
-               for a in event.get("attendees", []))
-
-
-def fetch_range(first, last):
-    """Calendarios marcados como visibles en Google y sus eventos en [first, last]."""
-    creds = credentials()
-    token_before = creds.token
-    session = AuthorizedSession(creds)
-
-    def get(path, **params):
-        r = session.get(API + path, params=params, timeout=20)
-        r.raise_for_status()
-        return r.json()
-
-    def items(path, **params):
-        while True:
-            data = get(path, **params)
-            yield from data.get("items", [])
-            if not data.get("nextPageToken"):
-                return
-            params["pageToken"] = data["nextPageToken"]
-
-    event_colors = {k: v["background"] for k, v in get("/colors").get("event", {}).items()}
-    time_min = dt.datetime.combine(first, dt.time.min).astimezone().isoformat()
-    time_max = dt.datetime.combine(last + dt.timedelta(days=1), dt.time.min).astimezone().isoformat()
-    calendars, events = [], []
-    for cal in items("/users/me/calendarList"):
-        if not cal.get("selected") or cal.get("hidden"):
-            continue
-        name = cal.get("summaryOverride") or cal.get("summary") or cal["id"]
-        cal_color = cal.get("backgroundColor") or FALLBACK_COLOR
-        calendars.append(name)
-        path = f"/calendars/{urllib.parse.quote(cal['id'], safe='')}/events"
-        for ev in items(path, timeMin=time_min, timeMax=time_max, singleEvents="true",
-                        orderBy="startTime", maxResults=2500):
-            if ev.get("status") == "cancelled" or declined(ev):
+def fetch_all():
+    """Calendarios de HomeHub y sus eventos; los que fallan se listan aparte."""
+    calendars = sorted(get("/calendars"), key=lambda c: not c.get("primary"))
+    jobs = [(cal, CALENDAR_COLORS[i % len(CALENDAR_COLORS)]) for i, cal in enumerate(calendars)]
+    names, events, failed = [], [], []
+    until = dt.date.today() + dt.timedelta(days=DAYS - 1)
+    with ThreadPoolExecutor(max_workers=len(jobs) or 1) as pool:
+        futures = [pool.submit(fetch_calendar, *job) for job in jobs]
+        for (cal, _), future in zip(jobs, futures):
+            try:
+                name, cal_events, cal_until = future.result()
+            except (OSError, ValueError, KeyError):
+                failed.append(cal.get("summary") or cal["id"])
                 continue
-            events.append({
-                "summary": ev.get("summary") or "(sin título)",
-                "start": ev["start"].get("dateTime") or ev["start"]["date"],
-                "end": ev["end"].get("dateTime") or ev["end"]["date"],
-                "location": ev.get("location", ""),
-                # Color propio del evento si lo tiene; si no, el del calendario.
-                "color": event_colors.get(ev.get("colorId"), cal_color),
-                "calendar": name,
-            })
-    if creds.token != token_before:
-        write_private(TOKEN, creds.to_json())
-    return {"calendars": calendars, "events": events}
+            names.append(name)
+            events.extend(cal_events)
+            until = min(until, cal_until)
+    if not names and failed:
+        raise OSError("ningún calendario respondió")
+    # Más allá de «until» algún calendario está incompleto: no se enseña nada.
+    events = [e for e in events if start_day(e["start"]) <= until]
+    return {"calendars": names, "events": events, "until": until.isoformat(), "failed": failed}
 
 
 # ----- caché -----
 def load_cache():
     try:
-        return json.loads(CACHE_FILE.read_text()).get("months", {})
-    except (FileNotFoundError, ValueError):
-        return {}
-
-
-def save_cache(months):
-    recent = sorted(months.items(), key=lambda kv: kv[1]["fetched"], reverse=True)
-    write_private(CACHE_FILE, json.dumps({"months": dict(recent[:MAX_CACHED_MONTHS])}))
+        data = json.loads(CACHE_FILE.read_text())
+        return data if {"fetched", "events", "until"} <= data.keys() else None
+    except (FileNotFoundError, ValueError, AttributeError):
+        return None
 
 
 def toggle_existing():
@@ -248,10 +216,10 @@ class Popup(Gtk.Window):
         self.today = dt.date.today()
         self.selected = self.today
         self.year, self.month = self.today.year, self.today.month
-        self.months = load_cache()  # "AAAA-MM" → {fetched, calendars, events}
-        self.loading = set()
-        self.error = None           # (tipo, mensaje) del último fallo
-        self.month_events = []
+        self.data = load_cache()  # {fetched, calendars, events, until, failed}
+        self.events = []
+        self.loading = False
+        self.error = None         # mensaje del último fallo
 
         screen = self.get_screen()
         visual = screen.get_rgba_visual()
@@ -334,78 +302,71 @@ class Popup(Gtk.Window):
         root.pack_start(self.status, False, False, 0)
         footer = Gtk.Box(spacing=4)
         footer.set_halign(Gtk.Align.END)
-        self.connect_btn = Gtk.Button(label="Conectar con Google 󰊭")
-        self.connect_btn.set_no_show_all(True)
-        self.connect_btn.connect("clicked", self.on_connect)
         open_btn = Gtk.Button(label="Abrir en Google 󰏌")
         open_btn.connect("clicked", self.open_google)
-        footer.pack_start(self.connect_btn, False, False, 0)
         footer.pack_start(open_btn, False, False, 0)
         root.pack_start(footer, False, False, 0)
 
+        self.load_events()
         self.render()
         self.ensure()
 
     # ----- datos -----
-    def key(self):
-        return f"{self.year:04d}-{self.month:02d}"
-
     def grid_start(self):
         first = dt.date(self.year, self.month, 1)
         return first - dt.timedelta(days=first.weekday())  # lunes
 
-    def ensure(self, force=False):
-        """Descarga el mes visible si falta, está caducado o se fuerza."""
-        key = self.key()
-        entry = self.months.get(key)
-        fresh = entry and time.time() - entry["fetched"] < MAX_AGE
-        if key in self.loading or (fresh and not force):
-            self.update_status()
-            return
-        self.loading.add(key)
-        self.update_status()
-        first = self.grid_start()
-        threading.Thread(target=self._fetch_worker, args=(key, first, first + dt.timedelta(days=41)),
-                         daemon=True).start()
+    def until(self):
+        return dt.date.fromisoformat(self.data["until"]) if self.data else None
 
-    def _fetch_worker(self, key, first, last):
+    def load_events(self):
+        try:
+            self.events = sorted((Event.from_dict(d) for d in (self.data or {}).get("events", [])),
+                                 key=Event.sort_key)
+        except (KeyError, ValueError):
+            self.data, self.events = None, []  # caché de otro formato: se rehace al sincronizar
+
+    def ensure(self, force=False):
+        """Descarga los eventos si faltan, están caducados o se fuerza."""
+        fresh = self.data and time.time() - self.data["fetched"] < MAX_AGE
+        if not self.loading and (force or not fresh):
+            self.loading = True
+            threading.Thread(target=self._fetch_worker, daemon=True).start()
+        self.update_status()
+
+    def _fetch_worker(self):
         data, error = None, None
         try:
-            data = fetch_range(first, last)
-        except AuthNeeded as e:
-            error = ("auth", str(e))
-        except (requests.RequestException, TransportError) as e:
-            error = ("net", f"Error de red con Google: {e.__class__.__name__}")
-        except (KeyError, ValueError) as e:
-            error = ("net", f"Respuesta inesperada de Google: {e}")
-        GLib.idle_add(self.on_fetched, key, data, error)
+            data = fetch_all()
+        except urllib.error.HTTPError as e:
+            error = f"HomeHub respondió {e.code}"
+        except (OSError, ValueError, KeyError) as e:
+            error = f"Error con HomeHub: {getattr(e, 'reason', None) or e}"
+        GLib.idle_add(self.on_fetched, data, error)
 
-    def on_fetched(self, key, data, error):
-        self.loading.discard(key)
+    def on_fetched(self, data, error):
+        self.loading = False
         self.error = error
         if data is not None:
-            self.months[key] = {"fetched": time.time(), **data}
+            self.data = {"fetched": time.time(), **data}
             try:
-                save_cache(self.months)
+                write_private(CACHE_FILE, json.dumps(self.data))
             except OSError as e:
-                self.error = ("net", f"No se pudo guardar la caché: {e}")
-        if key == self.key():
-            self.render()
-        else:
-            self.update_status()
+                self.error = f"No se pudo guardar la caché: {e}"
+            self.load_events()
+        self.render()
         return False
 
     def update_status(self):
-        entry = self.months.get(self.key())
-        auth = self.error is not None and self.error[0] == "auth"
-        self.connect_btn.set_visible(auth and CLIENT_SECRET.exists())
-        if self.key() in self.loading:
+        if self.loading:
             text = "Sincronizando…"
         elif self.error:
-            text = self.error[1]
-        elif entry:
-            age = time.time() - entry["fetched"]
+            text = self.error
+        elif self.data:
+            age = time.time() - self.data["fetched"]
             text = f"Sincronizado hace {int(age // 60)} min" if age >= 60 else "Sincronizado ahora"
+            if self.data.get("failed"):
+                text += " · sin leer: " + ", ".join(self.data["failed"])
         else:
             text = ""
         self.status.set_text(text)
@@ -415,15 +376,9 @@ class Popup(Gtk.Window):
         self.title_label.set_text(f"{MONTHS[self.month - 1]} {self.year}")
         start = self.grid_start()
         end = start + dt.timedelta(days=41)
-        entry = self.months.get(self.key(), {})
-        try:
-            self.month_events = sorted((Event.from_dict(d) for d in entry.get("events", [])),
-                                       key=Event.sort_key)
-        except (KeyError, ValueError):
-            self.month_events = []  # caché de un formato anterior: se rehace al sincronizar
-        self.multi_calendar = len(entry.get("calendars", [])) > 1
+        self.multi_calendar = len((self.data or {}).get("calendars", [])) > 1
         colors_by_day = {}
-        for ev in self.month_events:
+        for ev in self.events:
             first, last = ev.days()
             day = max(first, start)
             while day <= min(last, end):
@@ -450,9 +405,16 @@ class Popup(Gtk.Window):
         self.day_heading.set_text(f"{WEEKDAYS[d.weekday()]}, {d.day} de {MONTHS[d.month - 1]}")
         for child in self.event_box.get_children():
             child.destroy()
-        events = [e for e in self.month_events if e.days()[0] <= d <= e.days()[1]]
+        events = [e for e in self.events if e.days()[0] <= d <= e.days()[1]]
+        until = self.until()
         if not events:
-            self.event_box.pack_start(self.line("Sin eventos", "muted"), False, False, 0)
+            if d < self.today:
+                empty = "HomeHub solo da eventos desde hoy"
+            elif until and d > until:
+                empty = f"HomeHub solo llega al {until.day} de {MONTHS[until.month - 1]}"
+            else:
+                empty = "Sin eventos"
+            self.event_box.pack_start(self.line(empty, "muted"), False, False, 0)
         for ev in events[:MAX_DAY_EVENTS]:
             row = Gtk.Box(spacing=8)
             dot = Gtk.Label()
@@ -498,15 +460,11 @@ class Popup(Gtk.Window):
         month = self.month - 1 + delta
         self.year, self.month = self.year + month // 12, month % 12 + 1
         self.render()
-        self.ensure()
 
     def select(self, day):
-        changed = (day.year, day.month) != (self.year, self.month)
         self.selected = day
         self.year, self.month = day.year, day.month
         self.render()
-        if changed:
-            self.ensure()
 
     def on_day(self, btn):
         self.select(btn.day)
@@ -523,11 +481,6 @@ class Popup(Gtk.Window):
             return True
         return False
 
-    def on_connect(self, *_):
-        # El flujo OAuth abre el navegador y espera la redirección: proceso aparte.
-        subprocess.Popen([sys.executable, sys.argv[0], "--login"], start_new_session=True)
-        self.destroy()
-
     def open_google(self, *_):
         d = self.selected
         Gio.AppInfo.launch_default_for_uri(
@@ -536,13 +489,6 @@ class Popup(Gtk.Window):
 
 
 def main():
-    if sys.argv[1:] == ["--login"]:
-        if not CLIENT_SECRET.exists():
-            print(f"Falta {tilde(CLIENT_SECRET)}: descarga el cliente OAuth "
-                  "(App de escritorio) de Google Cloud.", file=sys.stderr)
-            return 1
-        login()
-        return 0
     if toggle_existing():
         return 0
     PIDFILE.write_text(str(os.getpid()))
