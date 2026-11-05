@@ -133,3 +133,5 @@ hl.bind(mainMod .. " + H",      hl.dsp.window.move({ monitor = "HDMI-A-5" }))
 hl.bind(mainMod .. " + period", hl.dsp.window.move({ monitor = "DP-3" }))
 hl.bind(mainMod .. " + left",   hl.dsp.focus({ monitor = "-1" }))
 hl.bind(mainMod .. " + right",  hl.dsp.focus({ monitor = "+1" }))
+hl.bind(mainMod .. " + CTRL + left",  hl.dsp.focus({ workspace = "e-1" }))  -- Workspace anterior (encoder dcha en capa NIX del Sofle)
+hl.bind(mainMod .. " + CTRL + right", hl.dsp.focus({ workspace = "e+1" }))  -- Workspace siguiente

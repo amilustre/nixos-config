@@ -32,9 +32,10 @@
       #workspaces button.active { color: #ffffff; border-bottom: 2px solid #d71921; }
       #workspaces button.focused { color: #ffffff; }
       #workspaces button.urgent { color: #ff4444; }
-      #clock, #pulseaudio, #network, #tray, #custom-updates { padding: 0 10px; }
+      #clock, #pulseaudio, #network, #tray, #custom-updates, #custom-screenshot { padding: 0 10px; }
       #clock { color: #d71921; font-weight: bold; }
-      #pulseaudio, #network { color: #c8c8cc; }
+      #pulseaudio, #network, #custom-screenshot { color: #c8c8cc; }
+      #custom-screenshot:hover { color: #d71921; }
       #custom-updates.updates, #custom-updates.pending { color: #d71921; }
       #custom-updates.reboot { color: #e3b341; }
       #custom-updates.error { color: #58585f; }
@@ -48,7 +49,7 @@
     height = 30;
     modules-left = [ "hyprland/workspaces" ];
     modules-center = [ "hyprland/window" ];
-    modules-right = [ "custom/updates" "pulseaudio" "network" "clock" "tray" ];
+    modules-right = [ "custom/updates" "custom/screenshot" "pulseaudio" "network" "clock" "tray" ];
     "hyprland/workspaces" = {
       disable-scroll = true;
       all-outputs = true;
@@ -68,6 +69,13 @@
       signal = 8; # update-check / update-apply envían SIGRTMIN+8 al cambiar
       on-click = "update-check apply";
       on-click-right = "systemctl --user start --no-block update-check.service";
+    };
+    # Clic: captura con selección/edición; clic derecho: pantalla completa.
+    "custom/screenshot" = {
+      format = "";
+      tooltip-format = "Captura (clic: selección · derecho: pantalla completa)";
+      on-click = "flameshot gui";
+      on-click-right = "flameshot full";
     };
   };
 
