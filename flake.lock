@@ -23,11 +23,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1793540411,
-        "narHash": "sha256-fiPJ88izTVucjeo2EQ3jk4aWmLg03I1D4vxnX2QjEgE=",
+        "lastModified": 1793726008,
+        "narHash": "sha256-jQp1wKvbwWdLBASTXkSi/VYmDJ5AbBi1WvcMt9HWJC8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0bb2eedc20e4739f29e8045034f2828ad7054f8f",
+        "rev": "1d060086d60cb76a40cf37109f979d88a5bd6396",
         "type": "github"
       },
       "original": {
@@ -46,11 +46,11 @@
       },
       "locked": {
         "dir": "packaging",
-        "lastModified": 1793781920,
-        "narHash": "sha256-GGUPCudrYUBu5ixhlln/Fl35/Hoj7JLr7wRCr8TNh+U=",
+        "lastModified": 1793862306,
+        "narHash": "sha256-shsDSA0oG22s37ou47Lz6Uk129oLdIB6Skuxxt7IleE=",
         "owner": "AprilNEA",
         "repo": "OpenLogi",
-        "rev": "4b75971606ec6560e863f57dbe92a3820337c4be",
+        "rev": "8f55ed03b1bd6a99def2958e10cec7215257f41f",
         "type": "github"
       },
       "original": {
