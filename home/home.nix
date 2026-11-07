@@ -5,6 +5,7 @@
     ./hyprland/settings.nix
     ./updates
     ./calendar
+    ./firefox
     ../modules/programs/git.nix
   ];
 
@@ -16,7 +17,6 @@
   home.sessionPath = [ "$HOME/.npm-global/bin" ];
 
   home.packages = with pkgs; [
-    firefox
     keepassxc
     pkgs.nerd-fonts.jetbrains-mono
   ];

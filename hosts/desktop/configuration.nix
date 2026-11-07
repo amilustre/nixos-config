@@ -166,7 +166,7 @@
   networking.networkmanager.enable = true;
 
   # Dashboard trading-crypto (8090) accesible desde la LAN (móvil de Alexis)
-  networking.firewall.allowedTCPPorts = [ 8090 9090 9091 ];
+  networking.firewall.allowedTCPPorts = [ 8090 9090 9091 8899 ];
 
   system.stateVersion = "26.05";
 }
