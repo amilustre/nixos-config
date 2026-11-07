@@ -131,11 +131,34 @@
   services.blueman.enable = true;
 
   # ===== SYNCTHING =====
+  # Dispositivos y carpetas declarativos: lo añadido desde la GUI se borra al activar.
   services.syncthing = {
     enable = true;
     user = "alexis";
     dataDir = "/home/alexis/.local/share/syncthing";
     configDir = "/home/alexis/.config/syncthing";
+    # 22000/tcp+udp (sync) y 21027/udp (descubrimiento local); sin esto los peers no pueden conectar a nixtopus
+    openDefaultPorts = true;
+    settings = {
+      devices = {
+        CT119.id = "54LV6ZO-36GIUMX-NASJ6FC-GYD5MTT-LJZZX4D-3MO2YPL-H742HTH-QFVMEQ7";
+        A001.id = "ITWC5Z2-X3MT3TO-XYOWLP5-UEGKBGM-UXTCB27-BKIPZJK-JH5UWRW-BLD7FAY";
+      };
+      folders = {
+        pulpi-vault = {
+          label = "Pulpi Vault";
+          path = "/home/alexis/vault";
+          devices = [ "CT119" ];
+          rescanIntervalS = 60;
+        };
+        keepass = {
+          id = "tvsjm-rqjhf"; # ID generado por Syncthing-Fork en el A001 (/sdcard/Keepass)
+          label = "Keepass";
+          path = "/home/alexis/keepass";
+          devices = [ "A001" ];
+        };
+      };
+    };
   };
 
   # ===== RED =====
