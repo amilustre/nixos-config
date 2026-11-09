@@ -32,10 +32,10 @@
       #workspaces button.active { color: #ffffff; border-bottom: 2px solid #d71921; }
       #workspaces button.focused { color: #ffffff; }
       #workspaces button.urgent { color: #ff4444; }
-      #clock, #pulseaudio, #network, #tray, #custom-updates, #custom-screenshot { padding: 0 10px; }
+      #clock, #pulseaudio, #network, #tray, #custom-updates, #custom-screenshot, #custom-mail { padding: 0 10px; }
       #clock { color: #d71921; font-weight: bold; }
-      #pulseaudio, #network, #custom-screenshot { color: #c8c8cc; }
-      #custom-screenshot:hover { color: #d71921; }
+      #pulseaudio, #network, #custom-screenshot, #custom-mail { color: #c8c8cc; }
+      #custom-screenshot:hover, #custom-mail:hover { color: #d71921; }
       #custom-updates.updates, #custom-updates.pending { color: #d71921; }
       #custom-updates.reboot { color: #e3b341; }
       #custom-updates.error { color: #58585f; }
@@ -49,7 +49,7 @@
     height = 30;
     modules-left = [ "hyprland/workspaces" ];
     modules-center = [ "hyprland/window" ];
-    modules-right = [ "custom/updates" "custom/screenshot" "pulseaudio" "network" "clock" "tray" ];
+    modules-right = [ "custom/updates" "custom/mail" "custom/screenshot" "pulseaudio" "network" "clock" "tray" ];
     "hyprland/workspaces" = {
       disable-scroll = true;
       all-outputs = true;
@@ -69,6 +69,18 @@
       signal = 8; # update-check / update-apply envían SIGRTMIN+8 al cambiar
       on-click = "update-check apply";
       on-click-right = "systemctl --user start --no-block update-check.service";
+    };
+    # Clic: enfoca Thunderbird si ya está abierto; si no, lo lanza.
+    "custom/mail" = {
+      format = "";
+      tooltip-format = "Thunderbird";
+      on-click = "${pkgs.writeShellScript "waybar-thunderbird" ''
+        if hyprctl clients -j | ${pkgs.jq}/bin/jq -e 'any(.[]; .class == "thunderbird")' >/dev/null; then
+          hyprctl dispatch "hl.dsp.focus({ window = 'class:^(thunderbird)$' })"
+        else
+          thunderbird &
+        fi
+      ''}";
     };
     # Clic: captura con selección/edición; clic derecho: pantalla completa.
     "custom/screenshot" = {
