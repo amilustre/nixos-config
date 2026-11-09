@@ -16,6 +16,7 @@
     wget
     grim
     calibre
+    thunderbird
   ];
 
   programs.hyprlock = {
