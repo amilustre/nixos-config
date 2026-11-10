@@ -30,6 +30,8 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("dunst")
     hl.exec_cmd("firefox", { workspace = "2 silent" })
     hl.exec_cmd("alacritty", { workspace = "1 silent" })
+    -- Thunderbird en segundo plano (workspace especial; clic en su icono de waybar)
+    hl.exec_cmd("thunderbird", { workspace = "special:mail silent" })
 end)
 
 -----------------------

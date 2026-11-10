@@ -1,5 +1,54 @@
 { config, pkgs, inputs, ... }:
 
+let
+  # Thunderbird en segundo plano: vive en el workspace especial "mail" de
+  # Hyprland (Thunderbird 159 no tiene "minimizar a bandeja" en Linux y su
+  # icono de bandeja no se puede colorear). El aviso lo da custom/mail:
+  # dunst marca el flag al recibir la notificación de correo de Thunderbird
+  # y se borra en cuanto se mira Thunderbird (enfocado o workspace visible).
+  jq = "${pkgs.jq}/bin/jq";
+  pkill = "${pkgs.procps}/bin/pkill";
+
+  mailStatus = pkgs.writeShellScript "waybar-mail-status" ''
+    flag="''${XDG_RUNTIME_DIR:-/tmp}/thunderbird-new-mail"
+    if ! hyprctl clients -j | ${jq} -e 'any(.[]; .class == "thunderbird")' >/dev/null; then
+      rm -f "$flag"
+      echo '{"text":"","class":"off","tooltip":"Thunderbird cerrado (clic para abrir)"}'
+      exit 0
+    fi
+    if [ -e "$flag" ] && {
+      hyprctl activewindow -j | ${jq} -e '.class == "thunderbird"' >/dev/null ||
+      hyprctl monitors -j | ${jq} -e 'any(.[]; .specialWorkspace.name == "special:mail")' >/dev/null
+    }; then
+      rm -f "$flag"
+    fi
+    if [ -e "$flag" ]; then
+      echo '{"text":"","class":"unread","tooltip":"Correo nuevo"}'
+    else
+      echo '{"text":"","class":"read","tooltip":"Thunderbird"}'
+    fi
+  '';
+
+  # Clic: muestra/oculta el workspace "mail"; si Thunderbird no está abierto
+  # lo lanza ahí; si su ventana está en un workspace normal, la enfoca.
+  mailClick = pkgs.writeShellScript "waybar-mail-click" ''
+    ws=$(hyprctl clients -j | ${jq} -r '[.[] | select(.class == "thunderbird") | .workspace.name]
+      | if index("special:mail") then "special:mail" else (.[0] // "") end')
+    if [ -z "$ws" ]; then
+      hyprctl dispatch "hl.dsp.exec_cmd('thunderbird', { workspace = 'special:mail' })"
+    elif [ "$ws" = "special:mail" ]; then
+      hyprctl dispatch "hl.dsp.workspace.toggle_special('mail')"
+    else
+      hyprctl dispatch "hl.dsp.focus({ window = 'class:^(thunderbird)$' })"
+    fi
+    ${pkill} -RTMIN+9 waybar
+  '';
+
+  mailFlagSet = pkgs.writeShellScript "dunst-thunderbird-new-mail" ''
+    touch "''${XDG_RUNTIME_DIR:-/tmp}/thunderbird-new-mail"
+    ${pkill} -RTMIN+9 waybar
+  '';
+in
 {
   imports = [
     ./hyprland/settings.nix
@@ -32,10 +81,13 @@
       #workspaces button.active { color: #ffffff; border-bottom: 2px solid #d71921; }
       #workspaces button.focused { color: #ffffff; }
       #workspaces button.urgent { color: #ff4444; }
-      #clock, #pulseaudio, #network, #tray, #custom-updates, #custom-screenshot, #custom-mail { padding: 0 10px; }
+      #clock, #pulseaudio, #network, #tray, #custom-updates, #custom-screenshot { padding: 0 10px; }
       #clock { color: #d71921; font-weight: bold; }
-      #pulseaudio, #network, #custom-screenshot, #custom-mail { color: #c8c8cc; }
-      #custom-screenshot:hover, #custom-mail:hover { color: #d71921; }
+      #pulseaudio, #network, #custom-screenshot { color: #c8c8cc; }
+      #custom-screenshot:hover { color: #d71921; }
+      #custom-mail { padding: 0 10px 0 2px; color: #c8c8cc; }
+      #custom-mail.unread { color: #d71921; }
+      #custom-mail.off { color: #58585f; }
       #custom-updates.updates, #custom-updates.pending { color: #d71921; }
       #custom-updates.reboot { color: #e3b341; }
       #custom-updates.error { color: #58585f; }
@@ -49,7 +101,7 @@
     height = 30;
     modules-left = [ "hyprland/workspaces" ];
     modules-center = [ "hyprland/window" ];
-    modules-right = [ "custom/updates" "custom/mail" "custom/screenshot" "pulseaudio" "network" "clock" "tray" ];
+    modules-right = [ "custom/updates" "custom/screenshot" "pulseaudio" "network" "clock" "tray" "custom/mail" ];
     "hyprland/workspaces" = {
       disable-scroll = true;
       all-outputs = true;
@@ -70,17 +122,13 @@
       on-click = "update-check apply";
       on-click-right = "systemctl --user start --no-block update-check.service";
     };
-    # Clic: enfoca Thunderbird si ya está abierto; si no, lo lanza.
+    # Thunderbird junto a la bandeja: color de resalto con correo nuevo.
     "custom/mail" = {
-      format = "";
-      tooltip-format = "Thunderbird";
-      on-click = "${pkgs.writeShellScript "waybar-thunderbird" ''
-        if hyprctl clients -j | ${pkgs.jq}/bin/jq -e 'any(.[]; .class == "thunderbird")' >/dev/null; then
-          hyprctl dispatch "hl.dsp.focus({ window = 'class:^(thunderbird)$' })"
-        else
-          thunderbird &
-        fi
-      ''}";
+      exec = "${mailStatus}";
+      return-type = "json";
+      interval = 3;
+      signal = 9; # mailClick / dunst envían SIGRTMIN+9
+      on-click = "${mailClick}";
     };
     # Clic: captura con selección/edición; clic derecho: pantalla completa.
     "custom/screenshot" = {
@@ -101,6 +149,11 @@
     mouse_middle_click = close_current
     mouse_right_click = close_all
     dmenu = ${pkgs.rofi}/bin/rofi -dmenu -p dunst
+
+    # Correo nuevo de Thunderbird → icono de waybar en color de resalto.
+    [thunderbird-new-mail]
+    appname = Thunderbird
+    script = ${mailFlagSet}
   '';
 
   programs.home-manager.enable = true;
