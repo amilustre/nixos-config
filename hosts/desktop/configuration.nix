@@ -75,8 +75,11 @@
 
   boot.initrd.supportedFilesystems = [ "btrfs" ];
 
-  # ===== SWAP (CORREGIDO) =====
-  swapDevices = [ { device = "/dev/nvme0n1p3"; } ];
+  # ===== SWAP =====
+  # No hay partición de swap (nvme0n1 = boot + btrfs): el antiguo
+  # swapDevices = /dev/nvme0n1p3 hacía esperar 90 s a cada switch/arranque
+  # ("Timed out waiting for device /dev/nvme0n1p3"). Swap comprimida en RAM.
+  zramSwap.enable = true;
 
   # ===== BOOTLOADER =====
   boot.loader = {
@@ -106,9 +109,24 @@
   environment.systemPackages = with pkgs; [ platformio openrgb ];
 
   # ===== LOGITECH HID++ (MX Master 3 por Bluetooth — OpenLogi) =====
-  # OpenLogi (en services.udev.packages) trae sus propias reglas uaccess
-  # (hidraw USB+BT, uinput, event nodes del ratón). Esta regla extra de grupo
-  # input cubre casos sin asiento logind (p.ej. sesión SSH).
+  # Paquete y módulo de nixpkgs (antes input github:AprilNEA/OpenLogi, cuyo
+  # build de nov-26 falla con zstd-sys). El paquete ya envuelve
+  # openlogi-overlay con libGL/wayland/vulkan y trae sus reglas udev uaccess
+  # (hidraw USB+BT, uinput); el módulo no activa el agente, así que se
+  # define aquí su unidad de usuario ligada a la sesión gráfica.
+  programs.openlogi.enable = true;
+  systemd.user.services.openlogi-agent = {
+    description = "OpenLogi background agent";
+    wantedBy = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${config.programs.openlogi.package}/bin/openlogi-agent";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+  };
+  # Regla extra de grupo input: cubre casos sin asiento logind (p.ej. SSH).
   services.udev.extraRules = ''
     SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="input"
     # ProtoArc EM06: hidraw accesible para WebHID (hub.protoarc.com) en Chromium.
