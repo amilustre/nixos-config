@@ -17,6 +17,22 @@
     grim
     calibre
     thunderbird
+    # Blender con su MCP (Blender Lab): lo usan omp y Pulpi (perfil taller).
+    # uv lanza el servidor blender-mcp fijado por el plugin.
+    blender
+    # Los CPython que descarga uv son binarios genéricos que NixOS no ejecuta
+    # (stub-ld): uv usa solo el python3 de nixpkgs.
+    (symlinkJoin {
+      name = "uv-${uv.version}";
+      paths = [ uv ];
+      nativeBuildInputs = [ makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/uv \
+          --suffix PATH : ${python3}/bin \
+          --set-default UV_PYTHON_DOWNLOADS never \
+          --set-default UV_PYTHON_PREFERENCE only-system
+      '';
+    })
   ];
 
   programs.hyprlock = {
